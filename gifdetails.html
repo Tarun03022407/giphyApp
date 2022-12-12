@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      img{
+        width: 480px;
+        height: 613px;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <a href="gif.html">gothome</a>
+    <div id="details"></div>
+  </body>
+</html>
+
+<script>
+  let api_key = "mJNKgzpc9n2wtflKrDUv3ateHPF2TSw2";
+
+  const details = async () => {
+    try {
+      let id = JSON.parse(localStorage.getItem("details"));
+
+      let res =await fetch(`https://api.giphy.com/v1/gifs/${id}?api_key=${api_key}`);
+      let result = await res.json();
+      append(result)
+      console.log(result);
+    } catch (e) {
+      console.log("error:", e);
+    }
+  };
+
+  details();
+
+  const append=(result) =>{
+    let details = document.getElementById("details")
+
+    let img=document.createElement(("img"))
+    img.src=result.data.images.downsized.url
+
+    let p=document.createElement("p")
+    p.innerHTML=result.data.title
+    console.log(img)
+    details.append(img,p)
+  }
+ 
+</script>

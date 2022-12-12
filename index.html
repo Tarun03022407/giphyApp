@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giphy</title>
+    <style>
+      #gif {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      img {
+        width: 300px;
+      }
+      image {
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <label for="search">Search</label>
+      <input type="text" name="" id="search">
+      <button onclick="gif();sticker()">GIF/STICKERS</button>
+    </div>
+    <div>
+      <button onclick="gotohome()">Home</button>
+      <button onclick="random()">Random</button>
+      <button onclick="categories()">Categories</button>
+      <button>Gif</button>
+      <button onclick="translate()">Translate</button>
+      <span id="sorting"></span>
+    </div>
+
+    <div id="gif"></div>
+  </body>
+</html>
+
+<script>
+  let api_key = "mJNKgzpc9n2wtflKrDUv3ateHPF2TSw2";
+
+  const main = async () => {
+    try {
+      let response = await fetch(
+        `https://api.giphy.com/v1/gifs/trending?api_key=${api_key}&limit=25&rating=g`
+      );
+
+      let data = await response.json();
+      append(data.data);
+      // console.log("data:", data.data);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+  main();
+
+  const append = async (data) => {
+    data.forEach((e) => {
+      let gif = document.getElementById("gif");
+
+      let img = document.createElement("img");
+      img.src = e.images.downsized.url;
+      img.addEventListener("click", () => {
+        detail_gif(e.id);
+        // window.location.href = "gifdetails.html";
+      });
+
+      gif.append(img);
+    });
+  };
+
+  const detail_gif = (id) => {
+    localStorage.setItem("details", JSON.stringify(id));
+    window.location.href = "gifdetails.html";
+  };
+
+  const random = async () => {
+    let gif = document.getElementById("gif");
+    gif.innerHTML = null;
+
+    try {
+      let response = await fetch(
+        `https://api.giphy.com/v1/gifs/random?api_key=${api_key}&tag=&rating=g`
+      );
+
+      let result = await response.json();
+      console.log(result);
+
+      let img = document.createElement("img");
+      img.src = result.data.images.downsized.url;
+      img.addEventListener("click", () => {
+        detail_gif(result.data.id);
+      });
+      console.log(img);
+      gif.append(img);
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+  const gotohome = () => {
+    window.location.href = "gif.html";
+  };
+
+  const categories = async () => {
+    let gif = document.getElementById("gif");
+    gif.innerHTML = null;
+
+    let sorting = document.getElementById("sorting");
+    sorting.innerHTML = null;
+
+    try {
+      let res = await fetch(
+        `https://api.giphy.com/v1/gifs/categories?api_key=${api_key}`
+      );
+      let result = await res.json();
+      console.log("result:", result);
+      console.log(result.data);
+
+      localStorage.setItem("categories",JSON.stringify(result.data))
+
+      let sorting_Z_A = document.createElement("button");
+      sorting_Z_A.innerText = "Z-A";
+      sorting.append(sorting_Z_A);
+
+
+      let sorting_A_Z=document.createElement("button")
+      sorting_A_Z.innerText = "A-Z";
+      sorting.append(sorting_A_Z);
+
+
+     
+      let dum;
+      sorting_Z_A.onclick = () => {
+        sorting_cat(dum= false);
+      };
+
+      sorting_A_Z.onclick = () => {
+        sorting_cat(dum= true);
+      };
+
+    
+
+      
+   
+
+      result.data.forEach((e) => {
+        let name = document.createElement("p");
+        name.innerHTML = e.name;
+        console.log(name);
+
+        let image = document.createElement("img");
+        image.src = e.gif.images.downsized.url;
+
+        image.addEventListener("click", () => {
+          detail_gif(e.gif.id);
+        });
+
+        gif.append(image, name);
+      });
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+
+
+  const sorting_cat = (dum) => {
+    let data=JSON.parse(localStorage.getItem("categories"))
+    if(dum==false){
+      data = data.reverse();
+    }
+    
+
+    let gif = document.getElementById("gif")
+    gif.innerHTML=null
+    
+
+    data.forEach(e=>{
+      let name = document.createElement("p");
+        name.innerHTML = e.name;
+        console.log(name);
+
+        let image = document.createElement("img");
+        image.src = e.gif.images.downsized.url;
+
+        image.addEventListener("click", () => {
+          detail_gif(e.gif.id);
+        });
+
+        gif.append(image, name);
+    })
+  }
+
+  
+
+  
+
+  const gif = async () =>{
+    let gif = document.getElementById("gif");
+    gif.innerHTML = null;
+    try{
+    let query = document.getElementById("search").value
+    if(query==""){
+      alert("please provide your input")
+    }
+    
+    let res= await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${api_key}&q=${query}&limit=25&offset=0&rating=g&lang=en`)
+  
+    let data=await res.json()
+    console.log("data:",data.data)
+    data.data.forEach(e=>{
+      let name = document.createElement("p");
+        name.innerHTML = e.title;
+        console.log(name);
+
+        let image = document.createElement("img");
+        image.src = e.images.downsized.url;
+
+        image.addEventListener("click", () => {
+          detail_gif(e.id);
+        });
+
+        gif.append(image, name);
+      });
+
+  }
+  catch (error){
+    console.log("error",error)
+  }
+  }
+
+
+  // https://api.giphy.com/v1/stickers/search?api_key=mJNKgzpc9n2wtflKrDUv3ateHPF2TSw2&q=&limit=25&offset=0&rating=g&lang=en
+
+
+  const sticker= async () =>{
+    let gif = document.getElementById("gif");
+    gif.innerHTML = null;
+    try{
+    let query = document.getElementById("search").value
+    if(query==""){
+      alert("please provide your input")
+    }
+    
+    let res= await fetch(`https://api.giphy.com/v1/stickers/search?api_key=${api_key}&q=${query}&limit=25&offset=0&rating=g&lang=en`)
+  
+    let data=await res.json()
+    console.log("data:",data.data)
+    data.data.forEach(e=>{
+      let name = document.createElement("p");
+        name.innerHTML = e.title;
+        console.log(name);
+
+        let image = document.createElement("img");
+        image.src = e.images.downsized.url;
+
+        image.addEventListener("click", () => {
+          detail_gif(e.id);
+        });
+
+        gif.append(image, name);
+      });
+
+  }
+  catch (error){
+    console.log("error",error)
+  }
+  }
+
+  const translate = async () =>{
+    let gif = document.getElementById("gif");
+    gif.innerHTML = null;
+    try{
+    let query = document.getElementById("search").value
+    if(query==""){
+      alert("please provide your input")
+    }
+    
+    let res= await fetch(`https://api.giphy.com/v1/stickers/translate?api_key=${api_key}&s=${query}&limit=25&offset=0&rating=g&lang=en`)
+  
+    let data=await res.json()
+    console.log("data:",data.data)
+    data.data.forEach(e=>{
+      let name = document.createElement("p");
+        name.innerHTML = e.title;
+        console.log(name);
+
+        let image = document.createElement("img");
+        image.src = e.images.downsized.url;
+
+        image.addEventListener("click", () => {
+          detail_gif(e.id);
+        });
+
+        gif.append(image, name);
+      });
+
+  }
+  catch (error){
+    console.log("error",error)
+  }
+  }
+
+</script>
